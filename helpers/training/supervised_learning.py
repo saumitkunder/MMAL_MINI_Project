@@ -471,3 +471,33 @@ class LateFusionTransformer(nn.Module):
         x = x.permute(2, 0, 1)
         x = self.transformer(x)[-1]
         return x
+import torch
+
+def train(model, dataloader, criterion, optimizer, device):
+    model.train()
+    total_loss = 0
+    for batch in dataloader:
+        inputs, labels = batch
+        inputs, labels = inputs.to(device), labels.to(device)
+
+        optimizer.zero_grad()
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+    return total_loss / len(dataloader)
+
+def test(model, dataloader, criterion, device):
+    model.eval()
+    total_loss = 0
+    with torch.no_grad():
+        for batch in dataloader:
+            inputs, labels = batch
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            total_loss += loss.item()
+    return total_loss / len(dataloader)
+
